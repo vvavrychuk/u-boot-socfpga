@@ -403,6 +403,14 @@ void spl_board_init(void)
 		(void *)&irq_cnt_ecc_sdram, 0);
 	sdram_enable_interrupt(1);
 	puts("SDRAM: ECC Enabled\n");
+	/*
+	 * Initializing the SDRAM ECC bits
+	 * Will need a much faster solution in later days
+	 */
+	puts("SDRAM: Initialize ECC bits...");
+	memset((long *)0x100000, 0, PHYS_SDRAM_1_SIZE - 0x100000);
+	puts("done\n");
+
 #endif 	/* CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN */
 #endif	/* CONFIG_SOCFPGA_VIRTUAL_TARGET */
 #endif	/* CONFIG_USE_IRQ */

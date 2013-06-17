@@ -97,11 +97,7 @@ void irq_handler_ecc_sdram(void *arg)
 	setbits_le32((SOCFPGA_SDR_ADDRESS + SDR_CTRLGRP_DRAMINTR_ADDRESS),
 		SDR_CTRLGRP_DRAMINTR_INTRCLR_MASK);
 
-	/* if DBE, going into hang */
-	if (reg_value & SDR_CTRLGRP_DRAMSTS_DBEERR_MASK) {
-		sdram_enable_interrupt(0);
-		hang();
-	}
+	/* disable the hang for demo purpose */
 }
 
 

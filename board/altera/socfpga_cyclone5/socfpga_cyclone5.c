@@ -304,6 +304,20 @@ int cpu_mmc_init(bd_t *bis)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
+#ifndef CONFIG_SOCFPGA_VIRTUAL_TARGET
+#if (CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN == 1)
+	/* clear first any pending interrupt */
+	sdram_enable_interrupt(0);
+	/* create event for tracking SDRAM ECC SBE count */
+	setenv_ulong("sdram_ecc_sbe", 0);
+	/* register SDRAM ECC handler */
+	irq_register(IRQ_ECC_SDRAM,
+		irq_handler_ecc_sdram,
+		(void *)&irq_cnt_ecc_sdram, 0);
+	sdram_enable_interrupt(1);
+	puts("SDRAM: ECC Enabled\n");
+#endif	/* CONFIG_HPS_SDR_CTRLCFG_CTRLCFG_ECCEN */
+#endif
 	return 0;
 }
 #endif
@@ -312,6 +326,7 @@ int board_late_init(void)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
+	/* disable the cache for demo purpose */
+	/* dcache_enable(); */
 }
 #endif

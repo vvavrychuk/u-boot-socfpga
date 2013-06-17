@@ -63,7 +63,7 @@
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_SYS_TEXT_BASE		0x08000040
 #else
-#define CONFIG_SYS_TEXT_BASE		0x01000040
+#define CONFIG_SYS_TEXT_BASE		0xC1000040
 #endif
 /* Default load address */
 #define CONFIG_SYS_LOAD_ADDR		0x7fc0
@@ -221,8 +221,40 @@
 	CONFIG_KSZ9021_CLK_SKEW_ENV "=" \
 		MK_STR(CONFIG_KSZ9021_CLK_SKEW_VAL) "\0" \
 	CONFIG_KSZ9021_DATA_SKEW_ENV "=" \
-		MK_STR(CONFIG_KSZ9021_DATA_SKEW_VAL) "\0"
-
+		MK_STR(CONFIG_KSZ9021_DATA_SKEW_VAL) "\0" \
+	"ecc_demo=" \
+		"env set sdram_ecc_sbe 0;" \
+		"echo ;" \
+		"echo Write buffer A: 640 words at address 0x100_0000;" \
+		"mw 0x1000000 0xffffffff 0xA00;" \
+		"echo ;" \
+		"echo During writing to buffer B, please;" \
+		"echo - short single pad to ground for single bit error, or;" \
+		"echo - short both pads to ground for double bit error;" \
+		"sleep 5; echo ;" \
+		"echo Write buffer B: 640 words at address 0x200_0000;" \
+		"mw 0x2000000 0xffffffff 0x200;" \
+		"sleep 1; echo 20%;" \
+		"mw 0x2000200 0xffffffff 0x200;" \
+		"sleep 1; echo 40%;" \
+		"mw 0x2000400 0xffffffff 0x200;" \
+		"sleep 1; echo 60%;" \
+		"mw 0x2000600 0xffffffff 0x200;" \
+		"sleep 1; echo 80%;" \
+		"mw 0x2000800 0xffffffff 0x200;" \
+		"sleep 1; echo 100%;" \
+		"echo ;" \
+		"echo Writing done. You can now stop introducing errors;" \
+		"echo ;" \
+		"sleep 2;" \
+		"echo Comparing buffer A with buffer B;" \
+		"if cmp.l 0x1000000 0x2000000 0x280; then " \
+		"	echo All errors were corrected;" \
+		"fi;" \
+		"echo ;" \
+		"echo Number of single bit error occurred is;" \
+		"env print sdram_ecc_sbe;" \
+		"echo \0"
 
 /*
  * Environment setup
@@ -284,12 +316,12 @@
 /* We have 1 bank of DRAM */
 #define CONFIG_NR_DRAM_BANKS		1
 /* SDRAM Bank #1 */
-#define CONFIG_SYS_SDRAM_BASE		0x00000000
+#define CONFIG_SYS_SDRAM_BASE		0xC0000000
 /* SDRAM memory size */
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define PHYS_SDRAM_1_SIZE		0x80000000
 #else
-#define PHYS_SDRAM_1_SIZE		0x40000000
+#define PHYS_SDRAM_1_SIZE		0x20000000
 #endif
 /* SDRAM Bank #1 base address */
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
